@@ -1,5 +1,10 @@
 import discord
 import responses
+from user import User
+
+
+# Dictionary to store user objects
+users = {}
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -10,15 +15,22 @@ intents.members = True
 # Send messages
 async def send_message(message, user_message, is_private):
     try:
-        response = responses.handle_response(user_message)
+        user_id = str(message.author.id)
+        user = users.get(user_id)
+
+        if not user:
+            user = User(user_id)
+            users[user_id] = user
+
+        user.add_message(user_message, is_private)
+        response = responses.generate_response(user)
         await message.author.send(response) if is_private else await message.channel.send(response)
 
     except Exception as e:
         print(e)
 
-
 def run_discord_bot():
-    TOKEN = 'MTEzNjIxOTg0Mzc1MDc5MzI1Ng.GItJqU.O3pswV0JIubO_YxOjhKMRImdeKn1SWYZWhifoA'
+    TOKEN = 'MTEzNjIxOTg0Mzc1MDc5MzI1Ng.G1QAnE.Fgds0NXx8dOwquF5EYQm6uclwBBkxW4qQUsrQE'
     client = discord.Client(intents=intents)
 
     @client.event
@@ -27,7 +39,7 @@ def run_discord_bot():
 
     @client.event
     async def on_message(message):
-        # Make sure bot doesn't get stuck in an infinite loop
+        # Make sure the bot doesn't get stuck in an infinite loop
         if message.author == client.user:
             return
 
@@ -35,16 +47,12 @@ def run_discord_bot():
         username = str(message.author)
         user_message = str(message.content)
         channel = str(message.channel)
+        is_private = isinstance(channel, discord.DMChannel)
 
         # Debug printing
         print(f"{username} said: '{user_message}' ({channel})")
 
-        # If the user message contains a '?' in front of the text, it becomes a private message
-        if user_message[0] == '?':
-            user_message = user_message[1:]  # [1:] Removes the '?'
-            await send_message(message, user_message, is_private=True)
-        else:
-            await send_message(message, user_message, is_private=False)
+        await send_message(message, user_message, is_private)
 
     # Remember to run your bot with your personal TOKEN
     client.run(TOKEN)
