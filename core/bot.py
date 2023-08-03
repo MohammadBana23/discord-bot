@@ -48,33 +48,33 @@ def run_discord_bot():
         channel = str(message.channel)
         is_private = isinstance(channel, discord.DMChannel)
 
-        # if message.content.startswith('!ban'):
-        #     # Check if the author of the message has the "Ban Members" permission
-        #     if message.author.guild_permissions.ban_members:
-        #         # Split the message content to get the user to ban
-        #         user_to_ban = message.content.split(' ')[1]
-        #         try:
-        #             # Get the member object for the user to ban
-        #             member = await message.guild.fetch_member(int(user_to_ban))
-        #             # Ban the user
-        #             await member.ban()
-        #             await message.channel.send(f'{member.display_name} has been banned.')
-        #         except discord.errors.NotFound:
-        #             await message.channel.send('User not found.')
-        #     else:
-        #         await message.channel.send('You don\'t have permission to ban members.')
-        # elif message.content.startswith('!unban'):
-        #     # Assuming the bot has the "Ban Members" permission
-        #     user_id = message.content.split(' ')[1]
-        #     banned_users = message.guild.bans()
-        #     async for ban_entry in banned_users:
-        #         if ban_entry.user.id == int(user_id):
-        #             await message.guild.unban(ban_entry.user)
-        #             await message.channel.send(f'{ban_entry.user.name} has been unbanned.')
-        #             return
+        if message.content.startswith('!ban'):
+            # Check if the author of the message has the "Ban Members" permission
+            if message.author.guild_permissions.ban_members:
+                # Split the message content to get the user to ban
+                user_to_ban = message.content.split(' ')[1]
+                try:
+                    # Get the member object for the user to ban
+                    member = await message.guild.fetch_member(int(user_to_ban))
+                    # Ban the user
+                    await member.ban()
+                    await message.channel.send(f'{member.display_name} has been banned.')
+                except discord.errors.NotFound:
+                    await message.channel.send('User not found.')
+            else:
+                await message.channel.send('You don\'t have permission to ban members.')
+        elif message.content.startswith('!unban'):
+            # Assuming the bot has the "Ban Members" permission
+            user_id = message.content.split(' ')[1]
+            banned_users = message.guild.bans()
+            async for ban_entry in banned_users:
+                if ban_entry.user.id == int(user_id):
+                    await message.guild.unban(ban_entry.user)
+                    await message.channel.send(f'{ban_entry.user.name} has been unbanned.')
+                    return
 
-        #     await message.channel.send('User not found or not banned.')
-        if message.content.startswith('!mute'):
+            await message.channel.send('User not found or not banned.')
+        elif message.content.startswith('!mute'):
             # Assuming the bot has the "Manage Roles" permission
             user_id = message.content.split(' ')[1]
             user = message.guild.get_member(int(user_id))
